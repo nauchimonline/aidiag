@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Интерактивный рабочий лист для педагогов по ответственному применению искусственного интеллекта">
+<title>Педагогический навигатор ИИ</title>
+<style>
+:root{
+  --bg:#eef2f4;--ink:#19232d;--muted:#61707d;--surface:#fff;--line:#d8e0e5;
+  --navy:#1d3447;--navy2:#274c63;--green:#2f6c54;--red:#94444b;--gold:#8a6a2d;
+  --soft:#f5f7f8;--shadow:0 18px 50px rgba(25,35,45,.10);--radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#eaf0f3,#f6f7f8 42%,#edf2f3);color:var(--ink);font:16px/1.48 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+button,input{font:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid #7fb1c9;outline-offset:2px}
+.shell{width:min(1220px,calc(100% - 28px));margin:auto}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(244,247,248,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar-inner{min-height:64px;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;font-weight:900;color:var(--navy)}
+.brand-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--navy);color:#fff}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav button,.tool-btn{border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);padding:8px 11px;cursor:pointer}
+.nav button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+main{padding:24px 0 42px}
+.hero{position:relative;overflow:hidden;padding:clamp(28px,5vw,56px);border-radius:28px;color:#fff;background:
+radial-gradient(circle at 86% 17%,rgba(255,255,255,.11),transparent 19%),
+linear-gradient(135deg,#162a3a,#2b5368 62%,#37655e);box-shadow:var(--shadow)}
+.hero .eyebrow,.panel .eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:12px;font-weight:900}
+.hero .eyebrow{color:#d8e7ec}
+.hero h1{max-width:900px;margin:7px 0 15px;font:800 clamp(34px,5.5vw,64px)/1.02 Georgia,"Times New Roman",serif}
+.hero p{max-width:860px;margin:0;color:#e3edf0;font-size:clamp(16px,2vw,20px)}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.primary,.secondary,.ghost{min-height:44px;padding:9px 15px;border-radius:12px;font-weight:800;cursor:pointer}
+.primary{border:1px solid #173849;background:linear-gradient(135deg,#28576e,#17394c);color:#fff;box-shadow:0 8px 18px rgba(23,57,76,.18)}
+.hero .primary{background:#fff;color:#163347;border-color:#fff}
+.secondary{border:1px solid var(--line);background:#fff;color:var(--ink)}
+.ghost{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff}
+.hero-map{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:30px}
+.hero-step{position:relative;padding:12px;border:1px solid rgba(255,255,255,.19);border-radius:14px;background:rgba(255,255,255,.07);min-height:94px}
+.hero-step b{display:block;font-size:13px;margin-bottom:6px}.hero-step span{font-size:12px;color:#d9e8eb}
+.panel{margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.95);box-shadow:0 8px 24px rgba(25,35,45,.05)}
+.panel h2{margin:2px 0 8px;font:800 clamp(26px,3.2vw,38px)/1.1 Georgia,serif}
+.panel-lead{margin:0 0 18px;color:var(--muted)}
+.action-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.action-card{padding:16px;border:1px solid var(--line);border-radius:15px;background:var(--soft)}
+.action-card strong{display:block;margin:8px 0 5px}.action-num{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:var(--navy);color:#fff;font-weight:900}
+.setup-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
+.setup-card{position:relative;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fafbfb;transition:.18s}
+.setup-card.enabled{border-color:#6e8c9e;background:#f4f8fa;box-shadow:inset 0 0 0 1px #c2d4de}
+.setup-card h3{margin:11px 0 6px;font-size:18px}.setup-card p{margin:0 0 14px;color:var(--muted);font-size:13px}
+.mode-toggle{display:flex;align-items:center;gap:8px;font-weight:900;color:var(--navy)}
+.count-control{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.count-control input{width:58px;border:1px solid var(--line);border-radius:9px;padding:6px 7px;background:#fff}
+.setup-footer{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.setup-error{color:var(--red);font-weight:800}
+.home-stage-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
+.stage-card{display:flex;min-height:260px;flex-direction:column;padding:17px;border:1px solid var(--line);border-top:5px solid var(--stage);border-radius:16px;background:#fff}
+.stage-card.disabled-stage{opacity:.54}
+.stage-card .icon{font-size:30px}.stage-card h3{margin:10px 0 7px;font-size:19px}.stage-card p{color:var(--muted);font-size:13px;margin:0 0 14px}
+.stage-card .stage-action{margin-top:auto;border:0;border-radius:11px;padding:10px 11px;background:var(--stage);color:#fff;font-weight:900;cursor:pointer;text-align:left}
+.status-pill{display:inline-flex;width:max-content;margin-top:7px;padding:4px 8px;border-radius:999px;background:#eef2f4;color:#60717e;font-size:11px;font-weight:900}
+.status-pill.done{background:#e7f3eb;color:#2f6c54}
+.game-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:0 0 13px}
+.game-head h1{margin:2px 0 0;font:800 clamp(28px,4vw,46px)/1.04 Georgia,serif}
+.game-head .eyebrow{color:#557487}
+.progress-wrap{min-width:min(330px,38vw)}
+.progress-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:6px}
+.progress-track{height:10px;border-radius:999px;background:#dce4e8;overflow:hidden}.progress-bar{height:100%;background:linear-gradient(90deg,#335d73,#4a7f78);transition:width .3s}
+.game-grid{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px}
+.task-card,.side-card{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 8px 24px rgba(25,35,45,.05)}
+.task-card{padding:clamp(22px,4vw,40px);min-height:500px;display:flex;flex-direction:column}
+.task-label{display:inline-flex;width:max-content;padding:5px 9px;border-radius:999px;background:#edf3f6;color:#38586b;font-size:12px;font-weight:900}
+.task-card h2{margin:13px 0 8px;font:800 clamp(24px,3vw,34px)/1.2 Georgia,serif}
+.instruction{margin:0 0 18px;color:var(--muted)}
+.options{display:grid;gap:9px;margin-top:9px}
+.option{display:flex;align-items:center;gap:11px;width:100%;min-height:52px;padding:11px 13px;border:1px solid var(--line);border-radius:13px;background:#fafbfb;text-align:left;cursor:pointer;transition:.16s}
+.option:hover:not(:disabled){transform:translateX(3px);border-color:#85a0af;background:#fff}
+.option.selected{border-color:#355c70;background:#edf4f7;box-shadow:inset 4px 0 0 #355c70}
+.option-marker{display:grid;place-items:center;flex:0 0 auto;width:24px;height:24px;border:1px solid #9aa9b3;border-radius:50%;background:#fff;color:transparent;font-size:12px}
+.multiple .option-marker{border-radius:7px}.selected .option-marker{background:#355c70;border-color:#355c70;color:#fff}
+.feedback{margin-top:15px;padding:14px 15px;border-radius:13px}
+.feedback.success{border:1px solid #a9d0b8;background:#edf7f0;color:#24543b}.feedback.error{border:1px solid #e2b1b5;background:#fbefef;color:#7d373d}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:auto;padding-top:20px}
+.side-card{position:relative;overflow:hidden;padding:20px;background:linear-gradient(160deg,#203c4d,#254c50);color:#fff}
+.side-card h3{margin:0 0 6px;font:800 23px/1.15 Georgia,serif}.side-card p{color:#d1e2e2;font-size:14px}
+.route-list{display:grid;gap:7px;margin-top:16px}.route-row{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:8px;border-radius:10px;background:rgba(255,255,255,.06);font-size:12px}
+.route-dot{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.11)}
+.route-row.current{background:rgba(255,255,255,.17)}.route-row.done{color:#f3e6b8}
+.rule-box{margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.06);font-size:12px;color:#d9e7e6}
+.completion{padding:34px;text-align:center}.completion .seal{display:grid;place-items:center;width:100px;height:100px;margin:0 auto 15px;border-radius:50%;background:#e9f2f4;color:#24485b;font:900 29px Georgia,serif}
+.results-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+.result-card{padding:17px;border:1px solid var(--line);border-radius:15px;background:#fafbfb}.result-card h3{margin:0 0 5px}.result-score{font-size:32px;font-weight:900;color:var(--navy)}
+.result-card ul{padding-left:19px;margin:9px 0 0}.result-card li{margin:4px 0}
+.mastery{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.mastery-item{padding:11px;border-radius:12px;background:#f2f5f6;font-size:12px}.mastery-item b{display:block;font-size:15px;margin-bottom:3px}
+.quick-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.guide-card{padding:17px;border-radius:16px;border:1px solid var(--line)}.guide-card h3{margin:5px 0 7px}.guide-card ul{margin:0;padding-left:19px}.guide-card.do{background:#eff8f2}.guide-card.caution{background:#fbf6e8}.guide-card.dont{background:#fbefef}
+.overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(14,25,34,.74);backdrop-filter:blur(7px)}
+.overlay-card{width:min(760px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border-radius:20px;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.overlay-head{display:flex;align-items:start;justify-content:space-between;gap:15px}.overlay-head h2{margin:0;font:800 30px Georgia,serif}.close{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:#fff;cursor:pointer;font-size:24px}
+.overlay-card li{margin:7px 0}
+.toast{position:fixed;right:18px;bottom:18px;z-index:120;padding:11px 14px;border-radius:11px;background:#182c3a;color:#fff;box-shadow:var(--shadow)}
+@media(max-width:980px){.hero-map,.action-grid,.setup-grid,.home-stage-grid,.mastery{grid-template-columns:repeat(2,1fr)}.game-grid{grid-template-columns:1fr}.side-card{min-height:auto}.quick-guide,.results-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.nav{display:none}.hero-map,.action-grid,.setup-grid,.home-stage-grid,.mastery{grid-template-columns:1fr}.game-head{align-items:start;flex-direction:column}.progress-wrap{min-width:100%;width:100%}.panel{padding:18px}.hero{padding:26px 22px}.task-card{padding:22px}}
+@media print{.topbar,.hero-actions,.setup-footer,.actions,.tool-btn{display:none!important}body{background:#fff}.panel,.task-card,.side-card,.hero{box-shadow:none}.hero{color:#000;background:#fff;border:1px solid #bbb}.hero p,.hero .eyebrow{color:#333}}
+</style>
+
+<style id="brand-theme-override">
+:root{
+  --bg:#FFFFFF;
+  --ink:#262626;
+  --muted:#6D6D6D;
+  --surface:#FFFFFF;
+  --line:#E6E6E6;
+  --navy:#A30236;
+  --navy2:#FF5C36;
+  --green:#12A3AD;
+  --red:#A30236;
+  --gold:#FF941A;
+  --soft:#FFFFFF;
+  --shadow:0 12px 34px rgba(38,38,38,.10);
+  --radius:22px;
+}
+
+html, body, button, input, textarea, select{
+  font-family:"Fira Sans", Arial, sans-serif !important;
+}
+
+body{
+  background:#FFFFFF !important;
+  color:#262626 !important;
+}
+
+h1,h2,h3,h4,h5,h6,
+.hero h1,
+.panel h2,
+.game-head h1,
+.task-card h2,
+.side-card h3,
+.overlay-head h2{
+  font-family:"Fira Sans", Arial, sans-serif !important;
+  font-weight:700 !important;
+}
+
+.topbar{
+  background:rgba(255,255,255,.96) !important;
+  border-bottom:1px solid #E6E6E6 !important;
+}
+
+.brand{color:#A30236 !important;}
+.brand-mark{
+  background:#A30236 !important;
+  color:#FFFFFF !important;
+}
+
+.nav button,
+.tool-btn,
+.secondary{
+  background:#FFFFFF !important;
+  color:#404040 !important;
+  border-color:#E6E6E6 !important;
+}
+
+.nav button.active{
+  background:#A30236 !important;
+  color:#FFFFFF !important;
+  border-color:#A30236 !important;
+}
+
+.hero{
+  background:
+    radial-gradient(circle at 86% 18%, rgba(255,148,26,.18), transparent 20%),
+    radial-gradient(circle at 72% 78%, rgba(18,163,173,.16), transparent 22%),
+    linear-gradient(135deg,#A30236 0%,#A30236 62%,#3F5CBD 100%) !important;
+  color:#FFFFFF !important;
+}
+
+.hero .eyebrow{
+  color:#FFFFFF !important;
+  opacity:.85;
+}
+
+.hero p,
+.hero-step span{
+  color:#FFFFFF !important;
+}
+
+.hero-step{
+  background:rgba(255,255,255,.10) !important;
+  border-color:rgba(255,255,255,.25) !important;
+}
+
+.hero .primary{
+  background:#FFFFFF !important;
+  color:#A30236 !important;
+  border-color:#FFFFFF !important;
+}
+
+.ghost{
+  color:#FFFFFF !important;
+  border-color:rgba(255,255,255,.45) !important;
+  background:transparent !important;
+}
+
+.panel,
+.task-card,
+.result-card,
+.stage-card,
+.action-card,
+.setup-card,
+.overlay-card{
+  background:#FFFFFF !important;
+  border-color:#E6E6E6 !important;
+}
+
+.panel,
+.task-card,
+.stage-card,
+.result-card{
+  box-shadow:0 8px 24px rgba(38,38,38,.06) !important;
+}
+
+.panel .eyebrow,
+.game-head .eyebrow,
+.result-card .eyebrow,
+.overlay-card .eyebrow{
+  color:#A30236 !important;
+}
+
+.panel-lead,
+.stage-card p,
+.action-card span,
+.setup-card p,
+.instruction,
+.progress-meta,
+.count-control{
+  color:#6D6D6D !important;
+}
+
+.action-num{
+  background:#A30236 !important;
+  color:#FFFFFF !important;
+}
+
+.primary{
+  background:#A30236 !important;
+  border-color:#A30236 !important;
+  color:#FFFFFF !important;
+  box-shadow:0 8px 18px rgba(163,2,54,.18) !important;
+}
+
+.primary:hover{
+  filter:brightness(.96) !important;
+}
+
+.progress-track{
+  background:#E6E6E6 !important;
+}
+
+.progress-bar{
+  background:linear-gradient(90deg,#A30236,#FF5C36) !important;
+}
+
+.option{
+  background:#FFFFFF !important;
+  color:#262626 !important;
+  border-color:#E6E6E6 !important;
+}
+
+.option:hover:not(:disabled){
+  border-color:#879DC1 !important;
+  background:#FFFFFF !important;
+}
+
+.option.selected{
+  border-color:#A30236 !important;
+  background:rgba(163,2,54,.05) !important;
+  box-shadow:inset 4px 0 0 #A30236 !important;
+}
+
+.option-marker{
+  border-color:#AFABAB !important;
+  background:#FFFFFF !important;
+}
+
+.selected .option-marker{
+  background:#A30236 !important;
+  border-color:#A30236 !important;
+  color:#FFFFFF !important;
+}
+
+.feedback.success{
+  background:rgba(18,163,173,.08) !important;
+  color:#126D73 !important;
+  border-color:rgba(18,163,173,.32) !important;
+}
+
+.feedback.error{
+  background:rgba(255,92,54,.08) !important;
+  color:#A33A23 !important;
+  border-color:rgba(255,92,54,.30) !important;
+}
+
+.side-card{
+  background:linear-gradient(160deg,#404040,#262626) !important;
+  color:#FFFFFF !important;
+  border-color:#404040 !important;
+}
+
+.side-card p,
+.rule-box{
+  color:#E6E6E6 !important;
+}
+
+.route-row{
+  background:rgba(255,255,255,.06) !important;
+}
+
+.route-row.current{
+  background:rgba(255,148,26,.22) !important;
+}
+
+.route-row.done{
+  color:#FF941A !important;
+}
+
+.rule-box{
+  border-color:rgba(255,255,255,.16) !important;
+}
+
+.status-pill{
+  background:#F4F4F4 !important;
+  color:#6D6D6D !important;
+}
+
+.status-pill.done{
+  background:rgba(18,163,173,.10) !important;
+  color:#0D747B !important;
+}
+
+.setup-card.enabled{
+  border-color:#879DC1 !important;
+  background:rgba(135,157,193,.06) !important;
+  box-shadow:inset 0 0 0 1px rgba(135,157,193,.25) !important;
+}
+
+.quick-guide .do{
+  background:rgba(18,163,173,.07) !important;
+  border-color:rgba(18,163,173,.22) !important;
+}
+.quick-guide .caution{
+  background:rgba(255,148,26,.08) !important;
+  border-color:rgba(255,148,26,.25) !important;
+}
+.quick-guide .dont{
+  background:rgba(255,92,54,.07) !important;
+  border-color:rgba(255,92,54,.22) !important;
+}
+
+.result-score{
+  color:#A30236 !important;
+}
+
+.completion .seal{
+  background:rgba(163,2,54,.08) !important;
+  color:#A30236 !important;
+}
+
+.mastery-item{
+  background:#F7F7F7 !important;
+}
+
+input{
+  color:#262626 !important;
+  background:#FFFFFF !important;
+  border-color:#E6E6E6 !important;
+}
+
+.close{
+  color:#404040 !important;
+  background:#FFFFFF !important;
+  border-color:#E6E6E6 !important;
+}
+
+.toast{
+  background:#262626 !important;
+  color:#FFFFFF !important;
+}
+</style>
+
+</head>
+<body>
+<div class="topbar">
+  <div class="shell topbar-inner">
+    <div class="brand"><span class="brand-mark">ИИ</span><span><strong>Педагогический навигатор</strong><small style="display:block;font-weight:600;color:#6D6D6D;margin-top:2px">Автор О.Г. Петрова и ИИ</small></span></div>
+    <nav class="nav">
+      <button data-route="setup" onclick="go('setup')">Маршрут</button>
+      <button data-route="home" onclick="go('home')">Этапы</button>
+      <button data-route="results" onclick="go('results')">Итоги</button>
+      <button onclick="openRules()">Что можно / нельзя</button>
+    </nav>
+  </div>
+</div>
+<main class="shell" id="app"></main>
+<div id="overlay-root"></div>
+<script>
+const STAGES = [{"key": "role", "number": 1, "title": "Сохранять роль педагога", "short": "Роль и ответственность", "icon": "🧭", "goal": "Определять, где ИИ может помогать, а где решение должен принимать педагог.", "color": "#A30236", "tasks": [{"id": "role-1", "type": "single", "skill": "Роль педагога", "prompt": "ИИ подготовил объяснение новой темы. Что делать перед использованием на уроке?", "options": ["Использовать без изменений, если текст звучит убедительно", "Проверить и адаптировать материал под образовательную задачу, возраст и уровень подготовки", "Попросить ИИ подтвердить, что ответ правильный, и после этого использовать"], "answer": [1], "hint": "В рекомендациях ИИ имеет вспомогательный характер, а педагог сохраняет профессиональную оценку результата.", "explanation": "Верно. Педагог обязан верифицировать материал и адаптировать его под образовательную задачу, возраст и уровень подготовки обучающихся."}, {"id": "role-2", "type": "single", "skill": "Ответственность", "prompt": "Кто несёт окончательную ответственность за применение результата работы ИИ в профессиональной деятельности?", "options": ["Разработчик сервиса ИИ", "Образовательная организация", "Педагогический работник, принимающий решение об использовании результата"], "answer": [2], "hint": "Сервис может быть инструментом, но профессиональное решение остаётся за человеком.", "explanation": "Верно. Окончательное решение и ответственность за применение результата ИИ несёт педагогический работник."}, {"id": "role-3", "type": "single", "skill": "Оценочная обратная связь", "prompt": "Можно ли поручить ИИ сформировать персональную оценочную характеристику ученика для обратной связи?", "options": ["Да, если педагог затем прочитает текст", "Не рекомендуется использовать ИИ для материалов обратной связи оценочного и личностного характера", "Да, если не указывать имя ученика"], "answer": [1], "hint": "В документе отдельно выделено ограничение для оценочной и личностной обратной связи.", "explanation": "Верно. Педагогу не рекомендуется применять ИИ для создания материалов обратной связи оценочного и личностного характера."}, {"id": "role-4", "type": "single", "skill": "Авторство", "prompt": "Педагог использовал ИИ при подготовке конкурсного текста. Какой вариант соответствует рекомендациям?", "options": ["Можно выдать текст ИИ за полностью авторский, если он качественный", "Нужно указать факт использования ИИ и самостоятельно переработать содержание", "Достаточно удалить упоминание названия сервиса"], "answer": [1], "hint": "Рекомендации связывают авторство с прозрачностью использования ИИ и собственной переработкой.", "explanation": "Верно. Нельзя выдавать созданный ИИ текст за собственный авторский труд без указания факта использования ИИ и собственной переработки."}]}, {"key": "data", "number": 2, "title": "Защищать данные и выбирать сервис", "short": "Данные и сервисы", "icon": "🛡️", "goal": "Решать, какие данные допустимо передавать ИИ и какой тип сервиса предпочтителен.", "color": "#12A3AD", "tasks": [{"id": "data-1", "type": "multiple", "skill": "Персональные данные", "prompt": "Что из перечисленного не рекомендуется загружать в общедоступные сервисы ИИ и сервисы с интернет-подключением? Выберите все подходящие варианты.", "options": ["Фамилии и иные персональные данные обучающихся", "Оценки и характеристики обучающихся", "Работы обучающихся", "Общедоступный текст учебной темы без персональных данных"], "answer": [0, 1, 2], "hint": "К ограничениям относятся персональные данные и информация ограниченного доступа, включая оценки, характеристики и работы обучающихся.", "explanation": "Верно. Персональные данные, оценки, характеристики и работы обучающихся относятся к информации, которую не рекомендуется передавать таким сервисам."}, {"id": "data-2", "type": "single", "skill": "Минимизация данных", "prompt": "Для учебной аналитики достаточно обезличенной выборки. Какой принцип следует применить?", "options": ["Передать весь доступный массив — ИИ сам выберет нужное", "Передать только минимальный объём данных, необходимый для конкретной задачи", "Добавить имена учеников для повышения точности"], "answer": [1], "hint": "В рекомендациях прямо указан принцип минимизации при риске реидентификации.", "explanation": "Верно. Объём передаваемых данных должен быть ограничен строго необходимым для выполнения конкретной задачи."}, {"id": "data-3", "type": "single", "skill": "Выбор сервиса", "prompt": "Какой вариант использования сервисов ИИ обозначен как приоритетный для педагога?", "options": ["Любой зарубежный общедоступный сервис", "Сервисы на основе суверенной или национальной БФМ ИИ и сервисы в государственных информационных образовательных системах", "Только сервисы с максимальным количеством функций"], "answer": [1], "hint": "Приоритет связан не с числом функций, а с типом модели и информационным контуром.", "explanation": "Верно. Рекомендации отдают приоритет сервисам на основе суверенной или национальной БФМ ИИ и сервисам в составе государственных информационных образовательных систем."}, {"id": "data-4", "type": "single", "skill": "Конфиденциальность", "prompt": "Можно ли загрузить в общедоступный ИИ-сервис служебную записку школы для её сокращения?", "options": ["Да, если попросить ИИ удалить конфиденциальные сведения после обработки", "Не рекомендуется: организационно-распорядительная и служебная документация относится к информации, которую не следует загружать", "Да, если документ короче одной страницы"], "answer": [1], "hint": "Ограничение относится не к объёму текста, а к характеру информации.", "explanation": "Верно. Локальные нормативные акты, служебные записки и другая организационно-распорядительная документация перечислены среди данных, которые не рекомендуется загружать в такие сервисы."}]}, {"key": "verify", "number": 3, "title": "Проверять материалы ИИ", "short": "Верификация", "icon": "🔎", "goal": "Проверять материал ИИ до использования и принимать решение: использовать или доработать.", "color": "#FF941A", "tasks": [{"id": "verify-1", "type": "multiple", "skill": "Критерии проверки", "prompt": "Что необходимо проверить в материале, созданном с помощью ИИ? Выберите все подходящие варианты.", "options": ["Факты, даты, имена, формулы и цитаты по надёжным источникам", "Соответствие возрасту и индивидуальным особенностям обучающихся", "Соответствие принципам и правовым основаниям применения ИИ", "Только грамотность текста"], "answer": [0, 1, 2], "hint": "Проверка значительно шире орфографии: она включает содержательные, правовые и педагогические критерии.", "explanation": "Верно. Рекомендации требуют педагогической проверки достоверности, правовых оснований, принципов применения, возрастной и индивидуальной уместности и других критериев."}, {"id": "verify-2", "type": "single", "skill": "Решение по материалу", "prompt": "После проверки ИИ-материала обнаружены неточные формулировки, но основа пригодна. Какое решение соответствует рекомендациям?", "options": ["Использовать без изменений", "Осуществить доработку материала", "Удалить материал: любое исправление ИИ-материала запрещено"], "answer": [1], "hint": "После оценки предусмотрены два основных решения: использовать или доработать.", "explanation": "Верно. Если материал не соответствует требованиям полностью, педагог осуществляет его доработку."}, {"id": "verify-3", "type": "single", "skill": "Надёжность сервиса", "prompt": "О сервисе нет достоверных данных о частоте ошибок генерации. Как поступить?", "options": ["Использовать, если сервис популярен", "Использовать только для сложных задач", "Применение такого сервиса не рекомендуется"], "answer": [2], "hint": "Документ рекомендует учитывать независимое тестирование и доступные отчёты о качестве.", "explanation": "Верно. При отсутствии достоверных данных о частоте ошибок применение такого сервиса не рекомендуется."}, {"id": "verify-4", "type": "single", "skill": "Галлюцинации", "prompt": "ИИ уверенно приводит факт, которого нет в источниках. Как следует трактовать это?", "options": ["Как возможную «галлюцинацию» модели, требующую проверки", "Как доказательство, что источники устарели", "Как допустимое упрощение для урока"], "answer": [0], "hint": "Уверенная формулировка ИИ не является гарантией достоверности.", "explanation": "Верно. «Галлюцинации» — один из рисков технологии; результат ИИ нельзя принимать как безусловно достоверный."}]}, {"key": "students", "number": 4, "title": "Определять правила для обучающихся", "short": "ИИ у обучающихся", "icon": "🎓", "goal": "Определять допустимость ИИ с учётом возраста, типа задания и необходимости самостоятельного результата.", "color": "#3F5CBD", "tasks": [{"id": "students-1", "type": "single", "skill": "Начальная школа", "prompt": "Можно ли обучающемуся начальной школы самостоятельно использовать сервис ИИ на уроке?", "options": ["Да, для любого задания", "Да, только для поиска информации", "Нет: на уровне начального общего образования самостоятельное применение сервисов ИИ обучающимися не предусматривается"], "answer": [2], "hint": "Для начального общего образования в рекомендациях установлено отдельное ограничение.", "explanation": "Верно. На уровне начального общего образования сервисы ИИ обучающимися самостоятельно не применяются."}, {"id": "students-2", "type": "multiple", "skill": "Основная школа", "prompt": "Какие сценарии педагог может допустить для обучающихся основной школы? Выберите все подходящие варианты.", "options": ["Поиск и первичная систематизация информации", "Получение альтернативного объяснения сложного понятия", "Проверка гипотез в рамках учебной задачи", "Использование ИИ на итоговой аттестации"], "answer": [0, 1, 2], "hint": "Для основной школы допустимы учебные вспомогательные сценарии, но не аттестация.", "explanation": "Верно. Для основной школы перечислены поиск информации, объяснение сложных понятий и проверка гипотез; использование ИИ при промежуточной и итоговой аттестации не допускается."}, {"id": "students-3", "type": "single", "skill": "Аттестация", "prompt": "Ученику предлагают использовать ИИ при итоговой работе, где он должен лично продемонстрировать планируемые результаты обучения. Допустимо ли это?", "options": ["Да, если ИИ используется только для подсказки", "Нет, использование ИИ при итоговой аттестации и заданиях с обязательной личной демонстрацией результатов не допускается", "Да, если педагог разрешил всему классу"], "answer": [1], "hint": "Здесь действует прямое ограничение, связанное с личной демонстрацией результата.", "explanation": "Верно. В таких ситуациях использование сервисов ИИ не допускается."}, {"id": "students-4", "type": "single", "skill": "Детекторы ИИ", "prompt": "Сервис обнаружения ИИ-текста показал высокую вероятность генерации. Достаточно ли этого для обвинения ученика?", "options": ["Да, результат сервиса является окончательным доказательством", "Нет: такие сервисы могут ошибаться, окончательное решение принимает педагог", "Да, если вероятность выше 50%"], "answer": [1], "hint": "Рекомендации предупреждают о высокой вероятности ошибок таких сервисов.", "explanation": "Верно. Детекторы ИИ могут давать ошибки; окончательное решение по вопросу недопустимого использования принимает педагог."}]}, {"key": "prompt", "number": 5, "title": "Формулировать безопасный запрос", "short": "Эффективный запрос", "icon": "✍️", "goal": "Составлять запрос, который задаёт педагогическую цель, контекст, формат и ограничения без персональных данных.", "color": "#FF5C36", "tasks": [{"id": "prompt-1", "type": "multiple", "skill": "Структура запроса", "prompt": "Какие элементы рекомендуется включать в эффективный запрос к ИИ? Выберите все подходящие варианты.", "options": ["Педагогическую цель и задачу", "Предмет, тему, класс или возраст", "Желаемый формат, ограничения и уровень сложности", "Персональные данные ученика для персонализации"], "answer": [0, 1, 2], "hint": "Запрос должен быть конкретным, но не содержать персональных данных.", "explanation": "Верно. В запрос рекомендуется включать цель, задачу, предмет, тему, класс или возраст, формат, ограничения, сложность и критерии проверки, при этом персональные данные использовать не следует."}, {"id": "prompt-2", "type": "single", "skill": "Контекст запроса", "prompt": "Какой запрос лучше соответствует рекомендациям?", "options": ["«Сделай хороший урок по дробям»", "«Составь план урока по теме “Сложение дробей” для 5 класса на 45 минут; укажи цель, этапы, задания и форму рефлексии; учитывай возраст; не используй персональные данные»", "«Проанализируй оценки Иванова Ивана и подскажи, что с ним делать»"], "answer": [1], "hint": "Сильный запрос задаёт действие, контекст, адресата, формат и ограничения.", "explanation": "Верно. Второй запрос содержит педагогическую задачу, тему, класс, формат и ограничение на персональные данные."}, {"id": "prompt-3", "type": "single", "skill": "Работа с данными", "prompt": "Как безопаснее сформулировать запрос для анализа успеваемости?", "options": ["«Проанализируй деперсонализированную выгрузку и выдели типичные затруднения группы»", "«Проанализируй журнал с ФИО, оценками и характеристиками каждого ученика»", "«Запомни данные всех учеников для следующих запросов»"], "answer": [0], "hint": "В рекомендациях в качестве объекта работы прямо приводится деперсонализированная выгрузка.", "explanation": "Верно. Для подобных задач следует использовать деперсонализированные данные и принцип минимизации."}, {"id": "prompt-4", "type": "single", "skill": "Критерии результата", "prompt": "Что усилит запрос к ИИ при подготовке учебного материала?", "options": ["Запретить модели задавать уточняющие вопросы", "Добавить критерии проверки, требования к сложности и формату ответа", "Попросить модель писать максимально длинно"], "answer": [1], "hint": "Эффективный запрос задаёт не только тему, но и требования к результату.", "explanation": "Верно. Критерии проверки, формат и уровень сложности помогают связать результат ИИ с педагогической задачей."}]}];
+
+const STORAGE_KEY='aiTeacherNavigatorHistoryV1';
+let sessionReady=false;
+let sessionSettings={};
+let activeTasks={};
+let sessionDone={};
+let report={};
+let state={route:'intro',stageKey:null,taskIndex:0,selected:new Set(),attempts:0,feedback:null,correct:false};
+
+function defaultSettings(){
+  return Object.fromEntries(STAGES.map(s=>[s.key,{enabled:true,count:Math.min(3,s.tasks.length)}]));
+}
+function newReport(){
+  return Object.fromEntries(STAGES.map(s=>[s.key,{firstTry:0,total:0,errors:0,skills:{}}]));
+}
+function loadHistory(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){return {}}}
+function saveHistory(h){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(h))}catch(e){}}
+function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
+function selectWithoutRepeats(stage,count){
+  const h=loadHistory(), rec=h[stage.key]||{used:[],last:[]};
+  const byId=new Map(stage.tasks.map(t=>[t.id,t]));
+  const used=new Set((rec.used||[]).filter(id=>byId.has(id)));
+  const last=new Set((rec.last||[]).filter(id=>byId.has(id)));
+  let unseen=shuffle(stage.tasks.filter(t=>!used.has(t.id)&&!last.has(t.id))).concat(shuffle(stage.tasks.filter(t=>!used.has(t.id)&&last.has(t.id))));
+  let chosen=unseen.slice(0,count);
+  if(chosen.length<count){
+    const remain=shuffle(stage.tasks.filter(t=>!chosen.some(c=>c.id===t.id)&&!last.has(t.id))).concat(shuffle(stage.tasks.filter(t=>!chosen.some(c=>c.id===t.id))));
+    chosen=chosen.concat(remain.slice(0,count-chosen.length));
+  }
+  h[stage.key]={used: chosen.length && chosen.every(c=>used.has(c.id)) ? chosen.map(c=>c.id) : [...new Set([...used,...chosen.map(c=>c.id)])],last:chosen.map(c=>c.id)};
+  saveHistory(h);
+  return chosen;
+}
+function configure(settings){
+  if(!Object.values(settings).some(x=>x.enabled))return false;
+  sessionSettings=settings; activeTasks={}; sessionDone={}; report=newReport();
+  STAGES.forEach(s=>{
+    const cfg=settings[s.key];
+    activeTasks[s.key]=cfg.enabled?selectWithoutRepeats(s,Math.max(1,Math.min(s.tasks.length,Number(cfg.count)||1))):[];
+    sessionDone[s.key]=!cfg.enabled;
+    report[s.key].total=activeTasks[s.key].length;
+    activeTasks[s.key].forEach(t=>{if(!report[s.key].skills[t.skill])report[s.key].skills[t.skill]={total:0,firstTry:0,errors:0};report[s.key].skills[t.skill].total++});
+  });
+  sessionReady=true;
+  state={route:'home',stageKey:null,taskIndex:0,selected:new Set(),attempts:0,feedback:null,correct:false};
+  render();return true;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function stageByKey(k){return STAGES.find(s=>s.key===k)}
+function enabledStages(){return STAGES.filter(s=>sessionSettings[s.key]?.enabled)}
+function allDone(){return sessionReady&&STAGES.every(s=>sessionDone[s.key])}
+function go(route){
+  if(route!=='intro'&&route!=='setup'&&!sessionReady)route='setup';
+  if(route==='results'&&!sessionReady)route='setup';
+  state.route=route;state.stageKey=null;render();window.scrollTo({top:0,behavior:'smooth'});
+}
+function startStage(key){
+  if(!sessionSettings[key]?.enabled){showToast('Этот этап не включён в маршрут.');return}
+  state={route:'stage',stageKey:key,taskIndex:0,selected:new Set(),attempts:0,feedback:null,correct:false};render();window.scrollTo({top:0,behavior:'smooth'})
+}
+function render(){
+  document.querySelectorAll('.nav button[data-route]').forEach(b=>b.classList.toggle('active',b.dataset.route===state.route));
+  const app=document.getElementById('app');
+  if(state.route==='intro')app.innerHTML=renderIntro();
+  else if(state.route==='setup')app.innerHTML=renderSetup();
+  else if(state.route==='home')app.innerHTML=renderHome();
+  else if(state.route==='stage')app.innerHTML=renderStage();
+  else if(state.route==='results')app.innerHTML=renderResults();
+}
+function renderIntro(){
+  return `<section class="hero">
+    <div class="eyebrow">Интерактивный рабочий лист для педагогов</div>
+    <h1>Как работать с ИИ: можно, нельзя, нужно проверить</h1>
+    <p>Как изучить большой и сложный документ (методрекомендации)? Пройдите 5 этапов, решая педагогические ситуации, получая немедленную обратную связь и итоговую карту направлений, которые стоит прочитать в документе и затем закрепить, повторно проходя маршрут.</p>
+    <div class="hero-actions"><button class="primary" onclick="go('setup')">Настроить маршрут →</button><button class="ghost" onclick="openRules()">Сначала посмотреть правила</button></div>
+    <div class="hero-map">
+      <div class="hero-step"><b>1 · Вход</b><span>Что именно должен уметь педагог</span></div>
+      <div class="hero-step"><b>2 · Маршрут</b><span>Выберите нужные этапы и объём</span></div>
+      <div class="hero-step"><b>3 · Решение</b><span>Работайте с реальными педагогическими ситуациями</span></div>
+      <div class="hero-step"><b>4 · Проверка</b><span>Получайте объяснение, а не только «верно / неверно»</span></div>
+      <div class="hero-step"><b>5 · Итог</b><span>Определите сильные зоны и следующий шаг</span></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="eyebrow">Проверяемые действия</div><h2>После маршрута Вы будете уметь</h2>
+    <p class="panel-lead">выполнять 5 ключевых практических действий, которые заложены в методрекомендациях</p>
+    <div class="action-grid">
+      ${STAGES.map(s=>`<article class="action-card"><span class="action-num">${s.number}</span><strong>${esc(s.short)}</strong><span>${esc(s.goal)}</span></article>`).join('')}
+    </div>
+  </section>
+  <section class="panel">
+    <div class="eyebrow">Основная рамка</div><h2>Главный цикл принятия решения</h2>
+    <div class="quick-guide">
+      <article class="guide-card do"><div class="eyebrow">Можно и полезно</div><h3>ИИ как помощник</h3><ul><li>подбор и адаптация материалов</li><li>анализ и планирование</li><li>черновые материалы и объяснения</li><li>визуализация и поддержка проектной работы</li></ul></article>
+      <article class="guide-card caution"><div class="eyebrow">Только после проверки</div><h3>ИИ как черновик результата</h3><ul><li>факты и источники</li><li>соответствие возрасту и программе</li><li>риски ошибок и искажений</li><li>авторские права и этика</li></ul></article>
+      <article class="guide-card dont"><div class="eyebrow">Нельзя</div><h3>Границы</h3><ul><li>безусловно принимать ответ ИИ</li><li>передавать защищённые данные в общедоступные сервисы</li><li>использовать ИИ на аттестации</li><li>поручать ИИ личностную оценочную обратную связь</li></ul></article>
+    </div>
+  </section>`;
+}
+function renderSetup(){
+  const cfg=sessionReady?sessionSettings:defaultSettings();
+  const cards=STAGES.map(s=>{
+    const c=cfg[s.key]||{enabled:true,count:3};
+    return `<article class="setup-card ${c.enabled?'enabled':''}" id="setup-card-${s.key}">
+      <label class="mode-toggle"><input id="enable-${s.key}" type="checkbox" ${c.enabled?'checked':''} onchange="toggleSetup('${s.key}')"> ${s.icon} Этап ${s.number}</label>
+      <h3>${esc(s.short)}</h3><p>${esc(s.goal)}</p>
+      <label class="count-control"><span>Ситуаций</span><input id="count-${s.key}" type="number" min="1" max="${s.tasks.length}" value="${c.count}" ${c.enabled?'':'disabled'}><span>из ${s.tasks.length}</span></label>
+    </article>`;
+  }).join('');
+  return `<section class="panel">
+    <div class="eyebrow">Настройка маршрута</div><h2>Соберите практику под свою задачу</h2>
+    <p class="panel-lead">Можно пройти все пять этапов или оставить только нужные. Новый запуск сначала старается показывать ещё не встречавшиеся ситуации.</p>
+    <div class="setup-grid">${cards}</div>
+    <div class="setup-footer"><button class="primary" onclick="startConfigured()">Начать маршрут →</button>${sessionReady?'<button class="secondary" onclick="go(\'home\')">Вернуться без изменений</button>':''}<span id="setup-error" class="setup-error" role="alert"></span></div>
+  </section>
+  <section class="panel">
+    <div class="eyebrow">Рекомендуемый порядок</div><h2>От решения педагога — к работе ученика</h2>
+    <div class="action-grid">${STAGES.map(s=>`<article class="action-card"><span class="action-num">${s.number}</span><strong>${esc(s.title)}</strong><span>${esc(s.goal)}</span></article>`).join('')}</div>
+  </section>`;
+}
+function toggleSetup(key){
+  const on=document.getElementById('enable-'+key).checked;
+  document.getElementById('count-'+key).disabled=!on;
+  document.getElementById('setup-card-'+key).classList.toggle('enabled',on);
+  const e=document.getElementById('setup-error');if(e)e.textContent='';
+}
+function startConfigured(){
+  const settings={};
+  STAGES.forEach(s=>settings[s.key]={enabled:document.getElementById('enable-'+s.key).checked,count:document.getElementById('count-'+s.key).value});
+  if(!configure(settings))document.getElementById('setup-error').textContent='Выберите хотя бы один этап.';
+}
+function renderHome(){
+  const cards=STAGES.map(s=>{
+    const enabled=sessionSettings[s.key]?.enabled;
+    return `<article class="stage-card ${enabled?'':'disabled-stage'}" style="--stage:${s.color}">
+      <div class="icon">${s.icon}</div><span class="status-pill ${sessionDone[s.key]&&enabled?'done':''}">${!enabled?'не выбран':sessionDone[s.key]?'пройдено ✓':'доступно'}</span>
+      <h3>Этап ${s.number}. ${esc(s.short)}</h3><p>${esc(s.goal)}</p>
+      <button class="stage-action" onclick="${enabled?`startStage('${s.key}')`:`go('setup')`}">${enabled?'Начать этап →':'Добавить в маршрут'}</button>
+    </article>`;
+  }).join('');
+  return `<section class="panel"><div class="eyebrow">Ваш маршрут</div><h2>Выберите следующий этап</h2><p class="panel-lead">Этапы можно проходить в любом порядке. Для обучения полезно идти слева направо: от профессиональной роли к запросу.</p><div class="home-stage-grid">${cards}</div>
+  <div class="setup-footer">${allDone()?'<button class="primary" onclick="go(\'results\')">Посмотреть итоговую карту →</button>':''}<button class="secondary" onclick="go('setup')">Изменить маршрут</button><button class="secondary" onclick="openRules()">Что можно / нельзя</button></div></section>`;
+}
+function renderStage(){
+  const s=stageByKey(state.stageKey), tasks=activeTasks[s.key];
+  if(state.taskIndex>=tasks.length){sessionDone[s.key]=true;return renderStageComplete(s)}
+  const t=tasks[state.taskIndex], selected=state.selected, multiple=t.type==='multiple';
+  const options=t.options.map((o,i)=>`<button class="option ${selected.has(i)?'selected':''} ${multiple?'multiple':''}" ${state.correct?'disabled':''} onclick="toggleOption(${i})"><span class="option-marker">✓</span><span>${esc(o)}</span></button>`).join('');
+  const completed=state.taskIndex, progress=Math.round(completed/tasks.length*100);
+  return `${gameHead(s,completed,tasks.length,progress)}
+  <div class="game-grid">
+    <section class="task-card">
+      <span class="task-label">Ситуация ${state.taskIndex+1} · ${esc(t.skill)}</span>
+      <h2>${esc(t.prompt)}</h2><p class="instruction">${multiple?'Можно выбрать несколько вариантов.':'Выберите один вариант решения.'}</p>
+      <div class="options">${options}</div>
+      ${state.feedback?`<div class="feedback ${state.feedback.type}"><b>${state.feedback.type==='success'?'Верно.':'Пока нет.'}</b> ${esc(state.feedback.text)}</div>`:''}
+      <div class="actions">${state.correct?`<button class="primary" onclick="nextTask()">${state.taskIndex===tasks.length-1?'Завершить этап':'Следующая ситуация →'}</button>`:`<button class="primary" onclick="checkTask()" ${selected.size?'':'disabled'}>Проверить решение</button>`}<button class="secondary" onclick="openHelp()">Памятка</button><button class="secondary" onclick="go('home')">К этапам</button></div>
+    </section>
+    ${renderSide(s,t)}
+  </div>`;
+}
+function gameHead(s,current,total,progress){
+ return `<div class="game-head"><div><div class="eyebrow">Этап ${s.number} · ${esc(s.short)}</div><h1>${esc(s.title)}</h1></div><div class="progress-wrap"><div class="progress-meta"><span>Прогресс этапа</span><span>${Math.min(current+1,total)} из ${total}</span></div><div class="progress-track"><div class="progress-bar" style="width:${progress}%"></div></div></div></div>`
+}
+function renderSide(s,t){
+ return `<aside class="side-card"><h3>${s.icon} Карта решения</h3><p>${esc(s.goal)}</p><div class="route-list">${enabledStages().map(x=>`<div class="route-row ${x.key===s.key?'current':''} ${sessionDone[x.key]?'done':''}"><span class="route-dot">${sessionDone[x.key]?'✓':x.number}</span><span>${esc(x.short)}</span><span>${sessionDone[x.key]?'готово':''}</span></div>`).join('')}</div><div class="rule-box"><b>Текущий навык:</b><br>${esc(t.skill)}<br><br><b>Принцип:</b> сначала педагогическая задача и условия безопасности, затем — ИИ.</div></aside>`
+}
+function toggleOption(i){
+ if(state.correct)return;
+ const t=activeTasks[state.stageKey][state.taskIndex];
+ if(t.type==='single')state.selected=new Set([i]); else {const n=new Set(state.selected);n.has(i)?n.delete(i):n.add(i);state.selected=n}
+ state.feedback=null;render()
+}
+function sameSet(a,b){return a.size===b.length&&b.every(x=>a.has(x))}
+function checkTask(){
+ const s=stageByKey(state.stageKey),t=activeTasks[s.key][state.taskIndex],r=report[s.key];
+ state.attempts++;
+ if(sameSet(state.selected,t.answer)){
+   state.correct=true;
+   if(state.attempts===1){r.firstTry++;r.skills[t.skill].firstTry++}
+   state.feedback={type:'success',text:t.explanation};
+ } else {
+   r.errors++;r.skills[t.skill].errors++;
+   state.feedback={type:'error',text:t.hint};
+ }
+ render()
+}
+function nextTask(){
+ state.taskIndex++;state.selected=new Set();state.attempts=0;state.feedback=null;state.correct=false;
+ if(state.taskIndex>=activeTasks[state.stageKey].length)sessionDone[state.stageKey]=true;
+ render()
+}
+function renderStageComplete(s){
+ const r=report[s.key],pct=r.total?Math.round(r.firstTry/r.total*100):0;
+ return `<section class="panel completion"><div class="seal">${pct}%</div><div class="eyebrow">Этап ${s.number} завершён</div><h2>${esc(s.short)}</h2><p class="panel-lead">С первой попытки: ${r.firstTry} из ${r.total}. Ошибки не блокируют обучение: они используются для итоговой рекомендации.</p><div class="setup-footer" style="justify-content:center"><button class="primary" onclick="goNext()">Следующий этап →</button><button class="secondary" onclick="startStage('${s.key}')">Пройти этот этап ещё раз</button><button class="secondary" onclick="go('home')">К этапам</button></div></section>`;
+}
+function goNext(){
+ const n=enabledStages().find(s=>!sessionDone[s.key]);
+ if(n)startStage(n.key); else go('results')
+}
+function renderResults(){
+ if(!sessionReady)return renderSetup();
+ const chosen=enabledStages(), total=chosen.reduce((a,s)=>a+report[s.key].total,0), first=chosen.reduce((a,s)=>a+report[s.key].firstTry,0);
+ const pct=total?Math.round(first/total*100):0;
+ const cards=chosen.map(s=>{
+   const r=report[s.key],p=r.total?Math.round(r.firstTry/r.total*100):0;
+   const weak=Object.entries(r.skills).filter(([k,v])=>v.firstTry<v.total).map(([k])=>k);
+   const strong=Object.entries(r.skills).filter(([k,v])=>v.firstTry===v.total).map(([k])=>k);
+   return `<article class="result-card"><div class="eyebrow">Этап ${s.number}</div><h3>${esc(s.short)}</h3><div class="result-score">${p}%</div><div>С первой попытки: ${r.firstTry}/${r.total}</div><ul>${strong.length?`<li><b>Уверенно:</b> ${esc(strong.join(', '))}</li>`:''}${weak.length?`<li><b>Повторить:</b> ${esc(weak.join(', '))}</li>`:'<li><b>Повторить:</b> критических зон не выявлено</li>'}</ul></article>`;
+ }).join('');
+ const repeat=chosen.filter(s=>{const r=report[s.key];return r.firstTry<r.total}).map(s=>s.short);
+ return `<section class="panel"><div class="eyebrow">${allDone()?'Маршрут завершён':'Промежуточный итог'}</div><h2>Карта готовности к работе с ИИ</h2><p class="panel-lead">Главная метрика здесь — не «экзаменационный балл», а доля решений, принятых верно с первой попытки.</p>
+ <div class="completion" style="padding:10px 0 0"><div class="seal">${pct}%</div></div>
+ <div class="results-grid">${cards}</div>
+ <div class="panel" style="margin-top:14px;background:#f7fafb"><div class="eyebrow">Следующий шаг</div><h2 style="font-size:27px">Что повторить</h2><p>${repeat.length?`Вернитесь к этапам: <b>${esc(repeat.join(', '))}</b>. Пройдите новый набор ситуаций и сравните долю верных решений с первой попытки.`:'Все выбранные этапы пройдены уверенно. Для закрепления можно запустить новый набор ситуаций с теми же настройками.'}</p></div>
+ <div class="setup-footer"><button class="primary" onclick="configure(sessionSettings)">Новый набор с теми же настройками</button><button class="secondary" onclick="go('setup')">Изменить маршрут</button><button class="secondary" onclick="openRules()">Открыть памятку</button></div></section>`;
+}
+function openHelp(){
+ const s=stageByKey(state.stageKey);
+ const notes={
+ role:['ИИ — дополнительное средство, а не замена профессиональной субъектности педагога.','Результат ИИ нельзя принимать как безусловно достоверное решение.','Окончательное решение и ответственность остаются за педагогом.','Оценочная и личностная обратная связь с помощью ИИ не рекомендуется.'],
+ data:['Не передавайте персональные данные и информацию ограниченного доступа в общедоступные сервисы.','Используйте принцип минимизации данных.','Приоритетны суверенные/национальные БФМ ИИ и государственные информационные образовательные системы.','Учитывайте, где осуществляется обработка и хранение данных.'],
+ verify:['Проверяйте факты, даты, имена, формулы и цитаты по надёжным источникам.','Проверяйте соответствие возрасту, индивидуальным особенностям, ФГОС и рабочей программе.','Оценивайте воспроизводимость, отсутствие деструктивной информации и эргономичность.','По итогам проверки: использовать или доработать.'],
+ students:['До начала работы сообщите обучающимся допустимые и недопустимые способы применения ИИ.','Начальная школа: самостоятельное применение не предусматривается.','Основная школа: поиск, объяснения, проверка гипотез; средняя — дополнительно проектная и исследовательская деятельность.','ИИ не допускается на промежуточной/итоговой аттестации и при обязательной личной демонстрации результата.'],
+ prompt:['Укажите действие, объект работы и педагогическую цель.','Добавьте предмет, тему, класс/возраст, при необходимости — категорию ОВЗ.','Задайте формат, глубину, стиль, ограничения и критерии проверки.','Не включайте персональные данные.']
+ };
+ openOverlay(`<div class="overlay-head"><div><div class="eyebrow">Памятка</div><h2>${esc(s.short)}</h2></div><button class="close" onclick="closeOverlay()" aria-label="Закрыть">×</button></div><ul>${notes[s.key].map(x=>`<li>${esc(x)}</li>`).join('')}</ul><button class="primary" onclick="closeOverlay()">Вернуться к ситуации</button>`)
+}
+function openRules(){
+ openOverlay(`<div class="overlay-head"><div><div class="eyebrow">Памятка педагога</div><h2>Что можно, что нельзя, что нужно проверить</h2></div><button class="close" onclick="closeOverlay()" aria-label="Закрыть">×</button></div>
+ <div class="quick-guide" style="margin-top:15px">
+ <article class="guide-card do"><h3>Можно</h3><ul><li>готовить и адаптировать материалы</li><li>подбирать источники и задания</li><li>анализировать обезличенные данные</li><li>планировать и проводить самоанализ</li><li>использовать ИИ как помощника</li></ul></article>
+ <article class="guide-card caution"><h3>Только с проверкой</h3><ul><li>любые факты и источники</li><li>возрастная и методическая уместность</li><li>материалы для ОВЗ</li><li>качество и воспроизводимость ответа</li><li>авторские права и этика</li></ul></article>
+ <article class="guide-card dont"><h3>Нельзя</h3><ul><li>принимать результат ИИ как безусловно достоверный</li><li>передавать персональные и конфиденциальные данные в общедоступные сервисы</li><li>использовать ИИ при промежуточной и итоговой аттестации</li><li>выдавать текст ИИ за собственный авторский труд без указания и переработки</li><li>поручать ИИ оценочную обратную связь личностного характера</li></ul></article>
+ </div>`)
+}
+function openOverlay(content){document.getElementById('overlay-root').innerHTML=`<div class="overlay" onclick="if(event.target===this)closeOverlay()"><section class="overlay-card">${content}</section></div>`}
+function closeOverlay(){document.getElementById('overlay-root').innerHTML=''}
+function showToast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+render();
+</script>
+</body>
+</html>
